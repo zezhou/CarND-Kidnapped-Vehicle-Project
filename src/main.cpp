@@ -57,29 +57,30 @@ int main()
       auto s = hasData(std::string(data));
       if (s != "") {
       	
-      	
         auto j = json::parse(s);
         std::string event = j[0].get<std::string>();
         
         if (event == "telemetry") {
           // j[1] is the data JSON object
-
-
           if (!pf.initialized()) {
 
           	// Sense noisy position data from the simulator
-			double sense_x = std::stod(j[1]["sense_x"].get<std::string>());
-			double sense_y = std::stod(j[1]["sense_y"].get<std::string>());
-			double sense_theta = std::stod(j[1]["sense_theta"].get<std::string>());
+			      double sense_x = std::stod(j[1]["sense_x"].get<std::string>()); // gps position?
+			      double sense_y = std::stod(j[1]["sense_y"].get<std::string>());
+			      double sense_theta = std::stod(j[1]["sense_theta"].get<std::string>());
+            //std::cout << "[DEBUG] start init" << std::endl;
+			      pf.init(sense_x, sense_y, sense_theta, sigma_pos);
+            //std::cout << "[DEBUG] start init success" << std::endl;
 
-			pf.init(sense_x, sense_y, sense_theta, sigma_pos);
 		  }
 		  else {
-			// Predict the vehicle's next state from previous (noiseless control) data.
-		  	double previous_velocity = std::stod(j[1]["previous_velocity"].get<std::string>());
-			double previous_yawrate = std::stod(j[1]["previous_yawrate"].get<std::string>());
-
-			pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
+			    // Predict the vehicle's next state from previous (noiseless control) data.
+		  	  double previous_velocity = std::stod(j[1]["previous_velocity"].get<std::string>());
+			    double previous_yawrate = std::stod(j[1]["previous_yawrate"].get<std::string>());
+  
+          //std::cout << "[DEBUG] start prediction" << std::endl;
+			    pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
+          //std::cout << "[DEBUG] start prediction success" << std::endl;
 		  }
 
 		  // receive noisy observation data from the simulator
@@ -111,8 +112,13 @@ int main()
         	}
 
 		  // Update the weights and resample
+      //std::cout << "[DEBUG] start updateWeights" << std::endl;
 		  pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
+      //std::cout << "[DEBUG] start updateWeights success" << std::endl;
+      
+      //std::cout << "[DEBUG] start resample" << std::endl;
 		  pf.resample();
+      //std::cout << "[DEBUG] start resample success" << std::endl;
 
 		  // Calculate and output the average weighted error of the particle filter over all time steps so far.
 		  vector<Particle> particles = pf.particles;

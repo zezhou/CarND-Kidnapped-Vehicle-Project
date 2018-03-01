@@ -241,4 +241,11 @@ inline bool read_landmark_data(std::string filename, std::vector<LandmarkObs>& o
 	return true;
 }
 
+inline std::vector<double> transform_coordinate(double sense_x, double sense_y, double sense_theta, double p_x, double p_y){
+	double map_x = p_x + sense_x * std::cos(sense_theta) - sense_y * std::sin(sense_theta);
+	double map_y = p_y + sense_x * std::sin(sense_theta) + sense_y * std::cos(sense_theta);
+	std::vector<double>res {map_x, map_y};
+	return res;
+};
+
 #endif /* HELPER_FUNCTIONS_H_ */
